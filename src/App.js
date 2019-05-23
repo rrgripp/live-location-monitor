@@ -20,17 +20,15 @@ class App extends React.Component {
       500,
       this.onSuggestionsFetchRequested
     );
-  };
+  }
 
   getSuggestionValue = suggestion => suggestion.city;
 
   renderSuggestion = suggestion => {
     return (
-      <div className="result">
-        <div>
-          {suggestion.city} ({suggestion.zipCode})
-        </div>
-      </div>
+      <span>
+        {suggestion.city} ({suggestion.zipCode})
+      </span>
     );
   };
 
@@ -56,15 +54,17 @@ class App extends React.Component {
     };
 
     return (
-      <Autosuggest
-        suggestions={suggestions}
-        onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-        onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-        getSuggestionValue={this.getSuggestionValue}
-        renderSuggestion={this.renderSuggestion}
-        onSuggestionSelected={this.onSuggestionSelected}
-        inputProps={inputProps}
-      />
+      <div className="App">
+        <Autosuggest
+          suggestions={suggestions}
+          onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+          onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+          getSuggestionValue={this.getSuggestionValue}
+          renderSuggestion={this.renderSuggestion}
+          onSuggestionSelected={this.onSuggestionSelected}
+          inputProps={inputProps}
+        />
+      </div>
     );
   }
 }
