@@ -12,6 +12,7 @@
 .react-autosuggest__container {
   margin: 20px;
   position: relative;
+  height: fit-content;
 }
 
 .react-autosuggest__input {

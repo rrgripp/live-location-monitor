@@ -4,8 +4,9 @@ import { debounce } from "throttle-debounce";
 import GoogleMap from "google-map-react";
 
 import "./App.css";
-import fetchLocations from "./services/api";
-import { tsOptionalType } from "@babel/types";
+import fetchLocations from "./services/benu";
+import { geocodeAddress } from "./services/maps";
+
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyDKHpmikOjilYKRH4fwZ-ePC2_kzBAmVEg";
 
@@ -13,6 +14,7 @@ const mapStyles = {
   width: "100%",
   height: "100%"
 };
+const AnyReactComponent = ({ text }) => <div className="map-pin">{text}</div>;
 
 const mapOptions = maps => ({
   zoomControlOptions: {
@@ -27,7 +29,8 @@ class App extends React.Component {
 
     this.state = {
       value: "",
-      suggestions: []
+      suggestions: [],
+      locations: []
     };
   }
 
@@ -38,12 +41,27 @@ class App extends React.Component {
     );
   }
 
-  getSuggestionValue = suggestion => suggestion.city;
+  getSuggestionValue = suggestion => {
+    geocodeAddress(
+      `${suggestion.city}, ${suggestion.province}, ${suggestion.zipCode}`,
+      ({ lat, lng }) => {
+        debugger;
+        this.setState({
+          locations: [
+            ...this.state.locations,
+            { lat, lng, city: suggestion.city }
+          ]
+        });
+      }
+    );
+    debugger;
+    return suggestion.city;
+  };
 
   renderSuggestion = suggestion => {
     return (
       <span>
-        {suggestion.city} ({suggestion.zipCode})
+        {suggestion.zipCode} {suggestion.city}
       </span>
     );
   };
@@ -54,7 +72,7 @@ class App extends React.Component {
 
   onSuggestionsFetchRequested = ({ value }) =>
     fetchLocations(value, data => {
-      this.setState({ suggestions: data });
+      this.setState({ suggestions: data.filter(value => value.available) });
     });
 
   onSuggestionsClearRequested = () => {
@@ -62,7 +80,7 @@ class App extends React.Component {
   };
 
   render() {
-    const { value, suggestions } = this.state;
+    const { value, suggestions, locations } = this.state;
     const inputProps = {
       placeholder: "Type the location",
       value,
@@ -75,9 +93,25 @@ class App extends React.Component {
           style={mapStyles}
           options={mapOptions}
           bootstrapURLKeys={{ key: GOOGLE_MAPS_API_KEY }}
-          center={{ lat: 5.6219868, lng: -0.1733074 }}
-          zoom={14}
-        />
+          center={locations.reduce(
+            (sum, current) =>
+              (sum = {
+                lat: sum.lat + current.lat / locations.length,
+                lng: sum.lng + current.lng / locations.length
+              }),
+            { lat: 0, lng: 0 }
+          )}
+          zoom={10}
+        >
+          {locations.map((location, index) => (
+            <AnyReactComponent
+              key={index}
+              lat={location.lat}
+              lng={location.lng}
+              text={location.city}
+            />
+          ))}
+        </GoogleMap>
         <Autosuggest
           suggestions={suggestions}
           onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
