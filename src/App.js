@@ -2,11 +2,12 @@ import React from "react";
 import Autosuggest from "react-autosuggest";
 import { debounce } from "throttle-debounce";
 import GoogleMap from "google-map-react";
+import { isEmpty } from "lodash";
 
 import "./App.css";
+import pinIcon from "./pin-red.svg";
 import fetchLocations from "./services/benu";
 import { geocodeAddress } from "./services/maps";
-
 
 const GOOGLE_MAPS_API_KEY = "AIzaSyDKHpmikOjilYKRH4fwZ-ePC2_kzBAmVEg";
 
@@ -14,7 +15,13 @@ const mapStyles = {
   width: "100%",
   height: "100%"
 };
-const AnyReactComponent = ({ text }) => <div className="map-pin">{text}</div>;
+const Marker = ({ location }) => {
+  return (
+    <div className="map-pin" onClick={() => console.log(location)}>
+      <img src={pinIcon} alt="Pin" />
+    </div>
+  );
+};
 
 const mapOptions = maps => ({
   zoomControlOptions: {
@@ -36,7 +43,7 @@ class App extends React.Component {
 
   componentWillMount() {
     this.onSuggestionsFetchRequested = debounce(
-      500,
+      100,
       this.onSuggestionsFetchRequested
     );
   }
@@ -45,7 +52,6 @@ class App extends React.Component {
     geocodeAddress(
       `${suggestion.city}, ${suggestion.province}, ${suggestion.zipCode}`,
       ({ lat, lng }) => {
-        debugger;
         this.setState({
           locations: [
             ...this.state.locations,
@@ -54,7 +60,6 @@ class App extends React.Component {
         });
       }
     );
-    debugger;
     return suggestion.city;
   };
 
@@ -101,17 +106,18 @@ class App extends React.Component {
               }),
             { lat: 0, lng: 0 }
           )}
-          zoom={10}
+          zoom={isEmpty(locations) ? 1 : 10}
         >
           {locations.map((location, index) => (
-            <AnyReactComponent
+            <Marker
               key={index}
               lat={location.lat}
               lng={location.lng}
-              text={location.city}
+              location={location}
             />
           ))}
         </GoogleMap>
+
         <Autosuggest
           suggestions={suggestions}
           onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
