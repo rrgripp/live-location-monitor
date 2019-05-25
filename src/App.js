@@ -64,11 +64,7 @@ class App extends React.Component {
     debugger;
     if (
       window.confirm(
-        "Do you wish to remove " +
-          location.zipCode +
-          " " +
-          location.city +
-          " from the map?"
+        "Do you wish to remove " + location.city + " from the map?"
       )
     ) {
       this.setState({
