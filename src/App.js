@@ -2,7 +2,7 @@ import React from "react";
 import Autosuggest from "react-autosuggest";
 import { debounce } from "throttle-debounce";
 import GoogleMap from "google-map-react";
-import { isEmpty } from "lodash";
+import { find, isEmpty, reject } from "lodash";
 
 import "./App.css";
 import pinIcon from "./pin-red.svg";
@@ -15,9 +15,9 @@ const mapStyles = {
   width: "100%",
   height: "100%"
 };
-const Marker = ({ location }) => {
+const Marker = ({ location, onMarkerClick }) => {
   return (
-    <div className="map-pin" onClick={() => console.log(location)}>
+    <div className="map-pin" onClick={() => onMarkerClick(location)}>
       <img src={pinIcon} alt="Pin" />
     </div>
   );
@@ -48,21 +48,6 @@ class App extends React.Component {
     );
   }
 
-  getSuggestionValue = suggestion => {
-    geocodeAddress(
-      `${suggestion.city}, ${suggestion.province}, ${suggestion.zipCode}`,
-      ({ lat, lng }) => {
-        this.setState({
-          locations: [
-            ...this.state.locations,
-            { lat, lng, city: suggestion.city }
-          ]
-        });
-      }
-    );
-    return suggestion.city;
-  };
-
   renderSuggestion = suggestion => {
     return (
       <span>
@@ -75,6 +60,23 @@ class App extends React.Component {
     this.setState({ value: newValue });
   };
 
+  onMarkerClick = location => {
+    debugger;
+    if (
+      window.confirm(
+        "Do you wish to remove " +
+          location.zipCode +
+          " " +
+          location.city +
+          " from the map?"
+      )
+    ) {
+      this.setState({
+        locations: reject(this.state.locations, location)
+      });
+    }
+  };
+
   onSuggestionsFetchRequested = ({ value }) =>
     fetchLocations(value, data => {
       this.setState({ suggestions: data.filter(value => value.available) });
@@ -82,6 +84,23 @@ class App extends React.Component {
 
   onSuggestionsClearRequested = () => {
     this.setState({ suggestions: [] });
+  };
+
+  onSuggestionSelected = (event, data) => {
+    const { suggestion } = data;
+    geocodeAddress(
+      `${suggestion.city}, ${suggestion.province}, ${suggestion.zipCode}`,
+      ({ lat, lng }) => {
+        if (!find(this.state.locations, { lat, lng, city: suggestion.city })) {
+          this.setState({
+            locations: [
+              ...this.state.locations,
+              { lat, lng, city: suggestion.city }
+            ]
+          });
+        }
+      }
+    );
   };
 
   render() {
@@ -114,6 +133,7 @@ class App extends React.Component {
               lat={location.lat}
               lng={location.lng}
               location={location}
+              onMarkerClick={this.onMarkerClick}
             />
           ))}
         </GoogleMap>
@@ -122,7 +142,7 @@ class App extends React.Component {
           suggestions={suggestions}
           onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
           onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-          getSuggestionValue={this.getSuggestionValue}
+          getSuggestionValue={suggestion => suggestion.city}
           renderSuggestion={this.renderSuggestion}
           onSuggestionSelected={this.onSuggestionSelected}
           inputProps={inputProps}
