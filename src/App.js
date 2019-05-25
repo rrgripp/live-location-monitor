@@ -115,32 +115,8 @@ class App extends React.Component {
             Search for a location and track it in the map!
           </span>
         </div>
-        <GoogleMap
-          style={mapStyles}
-          options={mapOptions}
-          bootstrapURLKeys={{ key: GOOGLE_MAPS_API_KEY }}
-          center={locations.reduce(
-            (sum, current) =>
-              (sum = {
-                lat: sum.lat + current.lat / locations.length,
-                lng: sum.lng + current.lng / locations.length
-              }),
-            { lat: 0, lng: 0 }
-          )}
-          zoom={isEmpty(locations) ? 1 : 10}
-        >
-          {locations.map((location, index) => (
-            <Marker
-              key={index}
-              lat={location.lat}
-              lng={location.lng}
-              location={location}
-              onMarkerClick={this.onMarkerClick}
-            />
-          ))}
-        </GoogleMap>
-
         <Autosuggest
+          className="location-monitor-input"
           suggestions={suggestions}
           onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
           onSuggestionsClearRequested={this.onSuggestionsClearRequested}
@@ -149,6 +125,31 @@ class App extends React.Component {
           onSuggestionSelected={this.onSuggestionSelected}
           inputProps={inputProps}
         />
+        <div className="location-monitor-map">
+          <GoogleMap
+            options={mapOptions}
+            bootstrapURLKeys={{ key: GOOGLE_MAPS_API_KEY }}
+            center={locations.reduce(
+              (sum, current) =>
+                (sum = {
+                  lat: sum.lat + current.lat / locations.length,
+                  lng: sum.lng + current.lng / locations.length
+                }),
+              { lat: 0, lng: 0 }
+            )}
+            zoom={isEmpty(locations) ? 1 : 10}
+          >
+            {locations.map((location, index) => (
+              <Marker
+                key={index}
+                lat={location.lat}
+                lng={location.lng}
+                location={location}
+                onMarkerClick={this.onMarkerClick}
+              />
+            ))}
+          </GoogleMap>
+        </div>
       </div>
     );
   }
