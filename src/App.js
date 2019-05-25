@@ -37,7 +37,8 @@ class App extends React.Component {
     this.state = {
       value: "",
       suggestions: [],
-      locations: []
+      locations: [],
+      lastLocation: undefined
     };
   }
 
@@ -84,15 +85,15 @@ class App extends React.Component {
 
   onSuggestionSelected = (event, data) => {
     const { suggestion } = data;
+    const { locations } = this.state;
     geocodeAddress(
       `${suggestion.city}, ${suggestion.province}, ${suggestion.zipCode}`,
       ({ lat, lng }) => {
-        if (!find(this.state.locations, { lat, lng, city: suggestion.city })) {
+        const locationSelected = { lat, lng, city: suggestion.city };
+        this.setState({ lastLocation: locationSelected });
+        if (!find(locations, { lat, lng, city: suggestion.city })) {
           this.setState({
-            locations: [
-              ...this.state.locations,
-              { lat, lng, city: suggestion.city }
-            ]
+            locations: [...locations, locationSelected]
           });
         }
       }
@@ -100,7 +101,7 @@ class App extends React.Component {
   };
 
   render() {
-    const { value, suggestions, locations } = this.state;
+    const { value, suggestions, lastLocation, locations } = this.state;
     const inputProps = {
       placeholder: "Type the location",
       value,
@@ -130,15 +131,8 @@ class App extends React.Component {
           style={mapStyles}
           options={mapOptions}
           bootstrapURLKeys={{ key: GOOGLE_MAPS_API_KEY }}
-          center={locations.reduce(
-            (sum, current) =>
-              (sum = {
-                lat: sum.lat + current.lat / locations.length,
-                lng: sum.lng + current.lng / locations.length
-              }),
-            { lat: 0, lng: 0 }
-          )}
-          zoom={isEmpty(locations) ? 1 : 10}
+          center={lastLocation || { lat: 48, lng: 14 }}
+          zoom={isEmpty(locations) ? 5 : 10}
         >
           {locations.map((location, index) => (
             <Marker
