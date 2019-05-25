@@ -113,6 +113,12 @@ class App extends React.Component {
 
     return (
       <div className="App">
+        <div className="location-monitor-header">
+          <h1 className="location-monitor-title">Live Location Monitor</h1>
+          <span className="location-monitor-subtitle">
+            Search for a location and track it in the map!
+          </span>
+        </div>
         <GoogleMap
           style={mapStyles}
           options={mapOptions}
