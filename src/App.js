@@ -112,9 +112,20 @@ class App extends React.Component {
         <div className="location-monitor-header">
           <h1 className="location-monitor-title">Live Location Monitor</h1>
           <span className="location-monitor-subtitle">
-            Search for a location and track it in the map!
+            Search for a location and track it on the map!
           </span>
+
+          <Autosuggest
+            suggestions={suggestions}
+            onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+            onSuggestionsClearRequested={this.onSuggestionsClearRequested}
+            getSuggestionValue={suggestion => suggestion.city}
+            renderSuggestion={this.renderSuggestion}
+            onSuggestionSelected={this.onSuggestionSelected}
+            inputProps={inputProps}
+          />
         </div>
+
         <GoogleMap
           style={mapStyles}
           options={mapOptions}
@@ -139,16 +150,6 @@ class App extends React.Component {
             />
           ))}
         </GoogleMap>
-
-        <Autosuggest
-          suggestions={suggestions}
-          onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-          onSuggestionsClearRequested={this.onSuggestionsClearRequested}
-          getSuggestionValue={suggestion => suggestion.city}
-          renderSuggestion={this.renderSuggestion}
-          onSuggestionSelected={this.onSuggestionSelected}
-          inputProps={inputProps}
-        />
       </div>
     );
   }

@@ -15,16 +15,20 @@
 }
 
 .location-monitor-header {
-  color: #555;
   padding: 20px;
+  width: 100%;
+  z-index: 1;
+  background-image: linear-gradient(#000000, #000000cc, #00000000);
 }
 
 .location-monitor-title {
+  color: white;
   font-size: 24px;
   font-weight: bold;
 }
 
 .location-monitor-subtitle {
+  color: white;
   font-size: 14px;
 }
 
@@ -41,7 +45,6 @@
 .react-autosuggest__input {
   width: 240px;
   padding: 10px 20px;
-  font-family: Helvetica, sans-serif;
   font-weight: 300;
   font-size: 16px;
   border: 1px solid #aaa;
