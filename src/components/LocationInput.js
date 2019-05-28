@@ -2,7 +2,7 @@ import React from "react";
 import Autosuggest from "react-autosuggest";
 import { debounce } from "throttle-debounce";
 
-import fetchLocations from "../services/benu";
+import fetchLocations from "../services/location";
 
 class LocationInput extends React.Component {
   constructor() {
